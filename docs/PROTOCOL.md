@@ -56,14 +56,14 @@ Paylaşım kodu anahtar yerine geçer; bu uç noktalar `X-MCB-Key` istemez.
 - `GET /d/<kod>`: tek dosyada indirme, çok dosyada indirme listesi sayfası.
 - `GET /d/<kod>/<sıra>`: listedeki dosya (0'dan başlar). `Range` desteklenir.
 
-Kod oluşturulduktan 15 dakika sonra, indirme başladıysa başlangıçtan 5 dakika sonra ölür. Ölü kod: `410`.
+Kod oluşturulduktan 15 dakika sonra, indirme başladıysa başlangıçtan 5 dakika sonra, tüm dosyalar baştan sona okunduysa 1 dakika sonra ölür. Ölü kod: `410`.
 Başlamış bir indirme kod ölünce kesilmez.
 
 ## Pano
 
 - `POST /api/clipboard` `{ "text": "..." }`: metni PC'ye gönderir. En fazla 1 MB.
-- `GET /api/clipboard`: PC'nin en son gönderdiği metin, `{ "text": "...", "at": <unix ms> }`. Yoksa `text` boştur.
-  Metin 15 dakika tutulur. Sayfa açıkken bu adresi 3 saniyede bir sorar; PC, metni her cihazın ilk alışını gösterir.
+- `GET /api/clipboard`: PC'nin bu cihaza gönderdiği en son metin, `{ "text": "...", "at": <unix ms> }`. Yoksa `text` boştur.
+  Metin yalnızca hedef cihaza döner ve 15 dakika tutulur; PC'den yeni metin gönderilince önceki silinir. Sayfa açıkken bu adresi 3 saniyede bir sorar; PC, hedefin ilk alışını gösterir.
 
 ## Tanılama
 

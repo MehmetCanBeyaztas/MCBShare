@@ -21,6 +21,9 @@ public sealed class ShareService
     public static readonly TimeSpan WaitLifetime = TimeSpan.FromMinutes(15);
     public static readonly TimeSpan DownloadLifetime = TimeSpan.FromMinutes(5);
 
+    /// <summary>Sunucu son baytı okuduğunda telefon onu henüz almamış olabilir; kopan indirme bu sürede tamamlanabilir.</summary>
+    public static readonly TimeSpan CompletedLifetime = TimeSpan.FromMinutes(1);
+
     private readonly TimeProvider _time;
     private readonly FileLog _log;
     private readonly Dictionary<string, Share> _shares = [];
@@ -83,19 +86,24 @@ public sealed class ShareService
         return file;
     }
 
-    /// <summary>Bir dosyada ulaşılan en ileri baytı bildirir. Devam eden indirme kod ölse de kesilmez.</summary>
-    public void ReportProgress(string code, int index, long position)
+    /// <summary>
+    /// Okunan bayt aralığını bildirir. Yalnızca baştan kesintisiz okunan kısım sayılır: dosyanın sonunu
+    /// yoklayan bir Range isteği indirmeyi bitmiş göstermemeli. Devam eden indirme kod ölse de kesilmez.
+    /// </summary>
+    public void ReportProgress(string code, int index, long start, long end)
     {
         ShareSnapshot? changed = null;
         lock (_lock)
         {
             if (!_shares.TryGetValue(code, out var share)) return;
-            if (position <= share.Sent[index]) return;
-            share.Sent[index] = position;
+            if (start > share.Sent[index] || end <= share.Sent[index]) return;
+            share.Sent[index] = end;
             var sent = share.Sent.Sum();
             if (sent >= share.Total && share.State != ShareState.Downloaded)
             {
                 share.State = ShareState.Downloaded;
+                share.ExpiresAt = _time.GetUtcNow() + CompletedLifetime;
+                share.Timer?.Change(CompletedLifetime, Timeout.InfiniteTimeSpan);
                 _log.Info("Share downloaded");
             }
             var now = _time.GetTimestamp();
@@ -115,7 +123,8 @@ public sealed class ShareService
         {
             if (!_shares.Remove(code, out var share)) return;
             share.Timer?.Dispose();
-            share.State = state;
+            if (state != ShareState.Expired || share.State != ShareState.Downloaded) share.State = state;
+            state = share.State;
             snapshot = share.Snapshot();
         }
         _log.Info($"Share ended: {state}");
@@ -138,7 +147,7 @@ public sealed class ShareService
 }
 
 /// <summary>İndirilen dosyayı okurken ulaşılan konumu bildirir.</summary>
-internal sealed class ProgressStream(Stream inner, Action<long> onPosition) : Stream
+internal sealed class ProgressStream(Stream inner, Action<long, long> onRead) : Stream
 {
     public override bool CanRead => true;
     public override bool CanSeek => inner.CanSeek;
@@ -152,15 +161,17 @@ internal sealed class ProgressStream(Stream inner, Action<long> onPosition) : St
 
     public override int Read(byte[] buffer, int offset, int count)
     {
+        var start = inner.Position;
         var read = inner.Read(buffer, offset, count);
-        onPosition(inner.Position);
+        onRead(start, start + read);
         return read;
     }
 
     public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken ct = default)
     {
+        var start = inner.Position;
         var read = await inner.ReadAsync(buffer, ct);
-        onPosition(inner.Position);
+        onRead(start, start + read);
         return read;
     }
 
@@ -181,22 +192,25 @@ public sealed class ClipboardExchange(TimeProvider time, FileLog log)
     public static readonly TimeSpan TextLifetime = TimeSpan.FromMinutes(15);
 
     private readonly Lock _lock = new();
-    private readonly HashSet<string> _deliveredTo = [];
+    private string? _targetId;
+    private bool _delivered;
     private string _text = "";
     private DateTimeOffset? _at;
 
     public event Action<string, string>? TextReceived;
 
-    /// <summary>Gönderilen metni bir cihaz ilk kez aldığında cihaz adıyla tetiklenir.</summary>
+    /// <summary>Hedef cihaz gönderilen metni ilk kez aldığında cihaz adıyla tetiklenir.</summary>
     public event Action<string>? TextDelivered;
 
-    public void SendToPhone(string text)
+    /// <summary>Metni yalnızca verilen cihaza açar. Önceki metnin yerini alır.</summary>
+    public void SendToPhone(string deviceId, string text)
     {
         lock (_lock)
         {
+            _targetId = deviceId;
             _text = text;
             _at = time.GetUtcNow();
-            _deliveredTo.Clear();
+            _delivered = false;
         }
     }
 
@@ -218,7 +232,12 @@ public sealed class ClipboardExchange(TimeProvider time, FileLog log)
         var latest = Latest();
         if (latest.At is null) return latest;
         bool first;
-        lock (_lock) first = _deliveredTo.Add(deviceId);
+        lock (_lock)
+        {
+            if (deviceId != _targetId) return ("", null);
+            first = !_delivered;
+            _delivered = true;
+        }
         if (first)
         {
             log.Info($"Clipboard text delivered to {deviceName}");

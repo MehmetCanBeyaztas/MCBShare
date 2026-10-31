@@ -133,7 +133,43 @@ public sealed class ShareLifetimeTests
     {
         var share = _shares.Create([_file]);
         _shares.BeginDownload(share.Code, 0);
-        _shares.ReportProgress(share.Code, 0, share.TotalBytes);
+        _shares.ReportProgress(share.Code, 0, 0, share.TotalBytes);
+        Assert.Equal(ShareState.Downloaded, _shares.Get(share.Code)!.State);
+    }
+
+    [Fact]
+    public void Completed_share_dies_after_1_minute_as_downloaded()
+    {
+        var share = _shares.Create([_file]);
+        ShareState? last = null;
+        _shares.ShareChanged += s => last = s.State;
+        _shares.BeginDownload(share.Code, 0);
+        _shares.ReportProgress(share.Code, 0, 0, share.TotalBytes);
+
+        _time.Advance(TimeSpan.FromSeconds(59));
+        Assert.NotNull(_shares.BeginDownload(share.Code, 0));
+        _time.Advance(TimeSpan.FromSeconds(1));
+        Assert.Null(_shares.Get(share.Code));
+        Assert.Equal(ShareState.Downloaded, last);
+    }
+
+    [Fact]
+    public void Reading_only_the_end_of_a_file_does_not_complete_it()
+    {
+        var share = _shares.Create([_file]);
+        _shares.BeginDownload(share.Code, 0);
+        _shares.ReportProgress(share.Code, 0, share.TotalBytes - 1, share.TotalBytes);
+        Assert.Equal(ShareState.Downloading, _shares.Get(share.Code)!.State);
+        Assert.Equal(0, _shares.Get(share.Code)!.BytesSent);
+    }
+
+    [Fact]
+    public void Resumed_download_completes_share()
+    {
+        var share = _shares.Create([_file]);
+        _shares.BeginDownload(share.Code, 0);
+        _shares.ReportProgress(share.Code, 0, 0, 1);
+        _shares.ReportProgress(share.Code, 0, 1, share.TotalBytes);
         Assert.Equal(ShareState.Downloaded, _shares.Get(share.Code)!.State);
     }
 }
@@ -425,9 +461,34 @@ public sealed class ServerTests : IAsyncLifetime
         (await _http.PostAsJsonAsync("/api/clipboard", new { text = "https://ornek.com" })).EnsureSuccessStatusCode();
         Assert.Equal("https://ornek.com", received);
 
-        _core.Clipboard.SendToPhone("pc metni");
+        _core.Clipboard.SendToPhone(_core.Devices.Devices.Single().Id, "pc metni");
         var body = await _http.GetFromJsonAsync<JsonElement>("/api/clipboard");
         Assert.Equal("pc metni", body.GetProperty("text").GetString());
+    }
+
+    [Fact]
+    public async Task Sent_text_reaches_only_the_target_device()
+    {
+        var delivered = new List<string>();
+        _core.Clipboard.TextDelivered += delivered.Add;
+        var targetId = _core.Devices.Devices.Single().Id;
+        var (other, otherKey) = _core.Devices.Register("Diger Telefon");
+        using var otherHttp = new HttpClient { BaseAddress = _http.BaseAddress };
+        otherHttp.DefaultRequestHeaders.Add("X-MCB-Key", otherKey);
+
+        _core.Clipboard.SendToPhone(targetId, "gizli");
+        var seenByOther = await otherHttp.GetFromJsonAsync<JsonElement>("/api/clipboard");
+        Assert.Equal("", seenByOther.GetProperty("text").GetString());
+        Assert.Equal(JsonValueKind.Null, seenByOther.GetProperty("at").ValueKind);
+        Assert.Empty(delivered);
+
+        var seenByTarget = await _http.GetFromJsonAsync<JsonElement>("/api/clipboard");
+        Assert.Equal("gizli", seenByTarget.GetProperty("text").GetString());
+        Assert.Equal(["Test iPhone"], delivered);
+
+        _core.Clipboard.SendToPhone(other.Id, "yeni");
+        var oldTarget = await _http.GetFromJsonAsync<JsonElement>("/api/clipboard");
+        Assert.Equal("", oldTarget.GetProperty("text").GetString());
     }
 
     private static byte[] JpegWithBrokenXmp()
@@ -504,16 +565,17 @@ public sealed class ServerTests : IAsyncLifetime
     {
         var delivered = new List<string>();
         _core.Clipboard.TextDelivered += delivered.Add;
+        var deviceId = _core.Devices.Devices.Single().Id;
 
         await _http.GetFromJsonAsync<JsonElement>("/api/clipboard");
         Assert.Empty(delivered);
 
-        _core.Clipboard.SendToPhone("bir");
+        _core.Clipboard.SendToPhone(deviceId, "bir");
         await _http.GetFromJsonAsync<JsonElement>("/api/clipboard");
         await _http.GetFromJsonAsync<JsonElement>("/api/clipboard");
         Assert.Equal(["Test iPhone"], delivered);
 
-        _core.Clipboard.SendToPhone("iki");
+        _core.Clipboard.SendToPhone(deviceId, "iki");
         await _http.GetFromJsonAsync<JsonElement>("/api/clipboard");
         Assert.Equal(2, delivered.Count);
     }
@@ -524,7 +586,7 @@ public sealed class ServerTests : IAsyncLifetime
         var time = new FakeTimeProvider();
         var dir = Path.Combine(_root, "clip-logs");
         var clipboard = new ClipboardExchange(time, new FileLog(dir, time));
-        clipboard.SendToPhone("gizli");
+        clipboard.SendToPhone("cihaz", "gizli");
 
         time.Advance(TimeSpan.FromMinutes(14));
         Assert.Equal("gizli", clipboard.Latest().Text);
