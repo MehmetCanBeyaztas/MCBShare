@@ -79,6 +79,7 @@
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Grid>
                     <TextBlock x:Name="TextTitle" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center" />
@@ -86,8 +87,9 @@
                 </Grid>
                 <TextBox x:Name="TextInput" Grid.Row="1" AcceptsReturn="True" TextWrapping="Wrap" MaxLength="100000" IsSpellCheckEnabled="False"
                          VerticalAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Auto" TextChanged="TextInput_TextChanged" />
-                <TextBlock x:Name="TextStatus" Grid.Row="2" FontSize="12" Opacity="0.75" TextWrapping="Wrap" />
-                <Grid Grid.Row="3" ColumnSpacing="8">
+                <ComboBox x:Name="TextTarget" Grid.Row="2" HorizontalAlignment="Stretch" Visibility="Collapsed" SelectionChanged="TextTarget_SelectionChanged" />
+                <TextBlock x:Name="TextStatus" Grid.Row="3" FontSize="12" Opacity="0.75" TextWrapping="Wrap" />
+                <Grid Grid.Row="4" ColumnSpacing="8">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />

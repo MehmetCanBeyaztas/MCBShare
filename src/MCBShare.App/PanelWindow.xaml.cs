@@ -99,6 +99,7 @@ public sealed partial class PanelWindow : Window
     private readonly DispatcherTimer _transferWatch = new() { Interval = TimeSpan.FromSeconds(5) };
     private readonly Dictionary<string, ActiveTransfer> _transfers = [];
     private string? _lastSentText;
+    private string? _textTargetId;
     private bool _qrFromText;
     private int _rowCount;
     private bool _pinned;
@@ -122,6 +123,8 @@ public sealed partial class PanelWindow : Window
         TextTitle.Text = Loc.T("TextTitle");
         TextBack.Content = Loc.T("Back");
         TextInput.PlaceholderText = Loc.T("TextPlaceholder");
+        TextTarget.PlaceholderText = Loc.T("ChoosePhone");
+        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(TextTarget, Loc.T("ChoosePhone"));
         TextQrButton.Content = Loc.T("ShowTextQr");
         TextSendButton.Content = Loc.T("SendToPhone");
         Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(TextButton, Loc.T("SendText"));
@@ -335,15 +338,43 @@ public sealed partial class PanelWindow : Window
         EmptyText.Visibility = Visibility.Collapsed;
         QrView.Visibility = Visibility.Collapsed;
         TextView.Visibility = Visibility.Visible;
-        UpdateTextButtons();
+        RefreshTextTargets();
         TextInput.Focus(FocusState.Programmatic);
+    }
+
+    /// <summary>Birden çok telefon varken metin, kullanıcı seçmeden hiçbirine gitmez.</summary>
+    public void RefreshTextTargets()
+    {
+        var devices = _core.Devices.Devices.OrderByDescending(d => d.LastSeenAt ?? d.RegisteredAt).ToList();
+        if (devices.All(d => d.Id != _textTargetId)) _textTargetId = null;
+        if (devices.Count == 1) _textTargetId = devices[0].Id;
+
+        var chosen = _textTargetId;
+        TextTarget.Items.Clear();
+        foreach (var device in devices)
+        {
+            var item = new ComboBoxItem { Content = $"{device.Name} · {Formats.Ago(device.LastSeenAt ?? device.RegisteredAt)}", Tag = device.Id };
+            TextTarget.Items.Add(item);
+            if (device.Id == chosen) TextTarget.SelectedItem = item;
+        }
+        _textTargetId = chosen;
+        TextTarget.Visibility = devices.Count > 1 ? Visibility.Visible : Visibility.Collapsed;
+        if (devices.Count > 0 && TextStatus.Text == Loc.T("NoPhone")) TextStatus.Text = "";
+        UpdateTextButtons();
     }
 
     private void UpdateTextButtons()
     {
         var hasText = TextInput.Text.Length > 0;
         TextQrButton.IsEnabled = hasText;
-        TextSendButton.IsEnabled = hasText && _core.State == ServerState.Running;
+        TextSendButton.IsEnabled = hasText && _textTargetId is not null && _core.State == ServerState.Running;
+        if (_core.Devices.Devices.Count == 0) TextStatus.Text = Loc.T("NoPhone");
+    }
+
+    private void TextTarget_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        _textTargetId = (TextTarget.SelectedItem as ComboBoxItem)?.Tag as string;
+        UpdateTextButtons();
     }
 
     private async void TextButton_Click(object sender, RoutedEventArgs e)
@@ -369,9 +400,10 @@ public sealed partial class PanelWindow : Window
 
     private void TextSend_Click(object sender, RoutedEventArgs e)
     {
+        if (_core.Devices.Devices.FirstOrDefault(d => d.Id == _textTargetId) is not { } target) return;
         _lastSentText = TextInput.Text;
-        _core.Clipboard.SendToPhone(_lastSentText);
-        TextStatus.Text = Loc.T("TextWaiting");
+        _core.Clipboard.SendToPhone(target.Id, _lastSentText);
+        TextStatus.Text = string.Format(Loc.T("TextWaiting"), target.Name);
     }
 
     private async void TextQr_Click(object sender, RoutedEventArgs e)

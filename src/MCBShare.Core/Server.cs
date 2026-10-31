@@ -420,7 +420,7 @@ internal static class Endpoints
             core.Log.Error("Shared file could not be opened", ex);
             return Failure(404, "not_found", "File not found");
         }
-        var tracked = new ProgressStream(stream, position => core.Shares.ReportProgress(code, index, position));
+        var tracked = new ProgressStream(stream, (start, end) => core.Shares.ReportProgress(code, index, start, end));
         return Results.File(tracked, "application/octet-stream", file.Name, enableRangeProcessing: true);
     }
 

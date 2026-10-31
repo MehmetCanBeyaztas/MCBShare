@@ -72,6 +72,7 @@ public partial class App : Application
             _toast.OnTransfer(update);
         });
         Core.Clipboard.TextDelivered += device => Ui.TryEnqueue(() => Panel.OnTextDelivered(device));
+        Core.Devices.Changed += () => Ui.TryEnqueue(Panel.RefreshTextTargets);
         Core.History.Changed += () => Ui.TryEnqueue(Panel.RefreshList);
         Core.Shares.ShareChanged += share => Ui.TryEnqueue(() => Panel.OnShareChanged(share));
         Core.Clipboard.TextReceived += (_, text) => Ui.TryEnqueue(() => OnPhoneText(text));
