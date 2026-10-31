@@ -1,0 +1,46 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*.*.*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    env:
+      REPO_URL: https://github.com/${{ github.repository }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Read version
+        id: version
+        shell: pwsh
+        run: |
+          "value=$($env:GITHUB_REF_NAME.TrimStart('v'))" >> $env:GITHUB_OUTPUT
+      - name: Test
+        run: dotnet test tests/MCBShare.Core.Tests -c Release
+      - name: Publish
+        run: >
+          dotnet publish src/MCBShare.App -c Release -r win-x64 --self-contained true
+          -p:Version=${{ steps.version.outputs.value }} -p:PublishReadyToRun=true -o publish
+      - name: Install Velopack tool
+        run: dotnet tool install -g vpk
+      - name: Fetch previous release for delta updates
+        continue-on-error: true
+        run: vpk download github --repoUrl ${{ env.REPO_URL }} --token ${{ secrets.GITHUB_TOKEN }}
+      - name: Pack
+        # Paket adı veri klasöründen (%LOCALAPPDATA%\MCBShare) farklıdır: kaldırma ayarları ve geçmişi silmez.
+        run: >
+          vpk pack --packId MCBShareApp --packTitle MCBShare --packAuthors "Mehmet Can Beyaztas"
+          --packVersion ${{ steps.version.outputs.value }} --packDir publish --mainExe MCBShare.exe
+          --icon src/MCBShare.App/Assets/app.ico
+      - name: Upload release
+        run: >
+          vpk upload github --repoUrl ${{ env.REPO_URL }} --publish
+          --releaseName "MCBShare ${{ steps.version.outputs.value }}"
+          --tag ${{ github.ref_name }} --token ${{ secrets.GITHUB_TOKEN }}

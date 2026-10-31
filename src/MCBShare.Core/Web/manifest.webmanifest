@@ -1,0 +1,8 @@
+{
+  "name": "MCBShare",
+  "short_name": "MCBShare",
+  "display": "standalone",
+  "background_color": "#0a84ff",
+  "theme_color": "#0a84ff",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}

@@ -1,0 +1,121 @@
+<Window
+    x:Class="MCBShare.App.PanelWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:MCBShare.App">
+    <Window.SystemBackdrop>
+        <DesktopAcrylicBackdrop />
+    </Window.SystemBackdrop>
+
+    <Grid x:Name="Root" AllowDrop="True" DragOver="Root_DragOver" Drop="Root_Drop" Background="Transparent">
+        <Grid.RenderTransform>
+            <TranslateTransform x:Name="SlideTransform" />
+        </Grid.RenderTransform>
+        <Grid.Resources>
+            <Storyboard x:Name="SlideIn">
+                <DoubleAnimation Storyboard.TargetName="SlideTransform" Storyboard.TargetProperty="Y" From="48" To="0" Duration="0:0:0.18">
+                    <DoubleAnimation.EasingFunction>
+                        <CubicEase EasingMode="EaseOut" />
+                    </DoubleAnimation.EasingFunction>
+                </DoubleAnimation>
+            </Storyboard>
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid Padding="16,12,8,8">
+            <TextBlock Text="MCBShare" FontWeight="SemiBold" FontSize="15" VerticalAlignment="Center" />
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="TextButton" Background="Transparent" BorderThickness="0" Padding="8" Click="TextButton_Click">
+                    <FontIcon Glyph="&#xE8BD;" FontSize="14" />
+                </Button>
+                <Button x:Name="SettingsButton" Background="Transparent" BorderThickness="0" Padding="8" Click="Settings_Click">
+                    <FontIcon Glyph="&#xE713;" FontSize="14" />
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <StackPanel Grid.Row="1" Padding="16,0,16,8" Spacing="8">
+            <TextBlock x:Name="StatusText" FontSize="12" Opacity="0.7" TextWrapping="Wrap" />
+            <Button x:Name="TrustButton" Click="Trust_Click" Visibility="Collapsed" Style="{StaticResource AccentButtonStyle}" />
+            <StackPanel x:Name="TransferRows" Spacing="10" Visibility="Collapsed" />
+        </StackPanel>
+
+        <Grid Grid.Row="2">
+            <ListView x:Name="FileList" SelectionMode="None" IsItemClickEnabled="True" ItemClick="FileList_ItemClick"
+                      CanDragItems="True" DragItemsStarting="FileList_DragItemsStarting" Padding="4,0">
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="local:FileRow">
+                        <Grid ColumnSpacing="12" Padding="0,6" RightTapped="Row_RightTapped" Background="Transparent">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Border Width="40" Height="40" CornerRadius="4">
+                                <Image Source="{x:Bind Thumbnail, Mode=OneWay}" Stretch="UniformToFill" />
+                            </Border>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="{x:Bind Name}" TextTrimming="CharacterEllipsis" FontSize="13" />
+                                <TextBlock Text="{x:Bind Detail}" FontSize="11" Opacity="0.65" TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+                            <Button Grid.Column="2" Background="Transparent" BorderThickness="0" Padding="8" Click="Copy_Click" Tag="{x:Bind}">
+                                <FontIcon Glyph="&#xE8C8;" FontSize="14" />
+                            </Button>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <TextBlock x:Name="EmptyText" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="32" Opacity="0.7"
+                       TextAlignment="Center" TextWrapping="Wrap" FontSize="13" />
+
+            <Grid x:Name="TextView" Visibility="Collapsed" Padding="16,4,16,8" RowSpacing="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid>
+                    <TextBlock x:Name="TextTitle" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center" />
+                    <HyperlinkButton x:Name="TextBack" HorizontalAlignment="Right" Padding="4,2" FontSize="12" Click="TextBack_Click" />
+                </Grid>
+                <TextBox x:Name="TextInput" Grid.Row="1" AcceptsReturn="True" TextWrapping="Wrap" MaxLength="100000" IsSpellCheckEnabled="False"
+                         VerticalAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Auto" TextChanged="TextInput_TextChanged" />
+                <TextBlock x:Name="TextStatus" Grid.Row="2" FontSize="12" Opacity="0.75" TextWrapping="Wrap" />
+                <Grid Grid.Row="3" ColumnSpacing="8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Button x:Name="TextQrButton" HorizontalAlignment="Stretch" Click="TextQr_Click" />
+                    <Button x:Name="TextSendButton" Grid.Column="1" HorizontalAlignment="Stretch" Style="{StaticResource AccentButtonStyle}" Click="TextSend_Click" />
+                </Grid>
+            </Grid>
+
+            <StackPanel x:Name="QrView" Visibility="Collapsed" VerticalAlignment="Center" Spacing="12" Padding="24,0">
+                <Border Background="White" CornerRadius="8" Padding="10" HorizontalAlignment="Center">
+                    <Image x:Name="QrImage" Width="220" Height="220" />
+                </Border>
+                <TextBlock x:Name="QrTitle" HorizontalAlignment="Center" FontWeight="SemiBold" FontSize="13" TextTrimming="CharacterEllipsis" />
+                <TextBlock x:Name="QrStatus" HorizontalAlignment="Center" FontSize="12" Opacity="0.75" TextAlignment="Center" TextWrapping="Wrap" />
+                <ProgressBar x:Name="QrProgress" Maximum="1" Visibility="Collapsed" />
+                <TextBlock x:Name="QrCountdown" HorizontalAlignment="Center" FontSize="11" Opacity="0.6" />
+                <Button x:Name="QrButton" HorizontalAlignment="Center" Click="QrButton_Click" />
+            </StackPanel>
+        </Grid>
+
+        <Grid Grid.Row="3" Padding="12,8" ColumnSpacing="8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Button x:Name="OpenFolderButton" HorizontalAlignment="Stretch" Click="OpenFolder_Click" />
+            <Button x:Name="ConnectButton" Grid.Column="1" HorizontalAlignment="Stretch" Click="Connect_Click" />
+        </Grid>
+    </Grid>
+</Window>
