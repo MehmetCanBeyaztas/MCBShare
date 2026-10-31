@@ -1,0 +1,30 @@
+<Window
+    x:Class="MCBShare.App.ToastWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Window.SystemBackdrop>
+        <DesktopAcrylicBackdrop />
+    </Window.SystemBackdrop>
+
+    <!-- Yükseklik sabit ve içerik yukarı hizalı: pencere alttan büyürken içerik görev çubuğunun içinden çıkıyor gibi görünür. -->
+    <Grid x:Name="Root" Height="72" VerticalAlignment="Top" Padding="12,10" ColumnSpacing="12" Background="Transparent"
+          PointerEntered="Root_PointerEntered" PointerExited="Root_PointerExited" Tapped="Root_Tapped">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="44" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <Border Width="44" Height="44" CornerRadius="4">
+            <Grid>
+                <FontIcon x:Name="TypeIcon" Glyph="&#xE8A5;" FontSize="24" />
+                <Image x:Name="Preview" Stretch="UniformToFill" />
+            </Grid>
+        </Border>
+        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+            <TextBlock x:Name="TitleText" FontSize="13" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+            <TextBlock x:Name="Subtitle" FontSize="12" Opacity="0.7" TextTrimming="CharacterEllipsis" />
+            <ProgressBar x:Name="Progress" Maximum="1" Visibility="Collapsed" />
+        </StackPanel>
+        <Button x:Name="CopyButton" Grid.Column="2" VerticalAlignment="Center" Visibility="Collapsed" Click="Copy_Click" />
+    </Grid>
+</Window>

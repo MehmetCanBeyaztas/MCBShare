@@ -1,0 +1,50 @@
+<Window
+    x:Class="MCBShare.App.SettingsWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Window.SystemBackdrop>
+        <MicaBackdrop />
+    </Window.SystemBackdrop>
+
+    <ScrollViewer>
+        <StackPanel Padding="24" Spacing="10" MaxWidth="620" HorizontalAlignment="Stretch">
+            <TextBlock x:Name="GeneralTitle" Style="{StaticResource SubtitleTextBlockStyle}" />
+            <TextBlock x:Name="FolderLabel" />
+            <Grid ColumnSpacing="8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBox x:Name="FolderBox" IsReadOnly="True" />
+                <Button x:Name="ChangeFolder" Grid.Column="1" Click="ChangeFolder_Click" />
+            </Grid>
+            <ToggleSwitch x:Name="StartToggle" Toggled="Start_Toggled" />
+            <ToggleSwitch x:Name="ToastToggle" Toggled="Option_Toggled" />
+            <ToggleSwitch x:Name="HeicToggle" Toggled="Option_Toggled" />
+            <ToggleSwitch x:Name="DateToggle" Toggled="Option_Toggled" />
+            <ToggleSwitch x:Name="DupToggle" Toggled="Option_Toggled" />
+            <NumberBox x:Name="RetentionBox" Minimum="0" Maximum="3650" SpinButtonPlacementMode="Inline" ValueChanged="Retention_Changed" />
+            <ComboBox x:Name="LanguageBox" SelectionChanged="Language_Changed" />
+
+            <TextBlock x:Name="NetworksTitle" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,16,0,0" />
+            <StackPanel x:Name="NetworkList" Spacing="4" />
+            <Button x:Name="TrustButton" Click="Trust_Click" />
+
+            <TextBlock x:Name="DevicesTitle" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,16,0,0" />
+            <StackPanel x:Name="DeviceList" Spacing="4" />
+            <Button x:Name="RenewPair" Click="RenewPair_Click" />
+
+            <TextBlock x:Name="ShortcutTitle" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,16,0,0" />
+            <TextBlock x:Name="ShortcutSteps" TextWrapping="Wrap" IsTextSelectionEnabled="True" />
+            <Button x:Name="ShortcutCreate" Click="ShortcutCreate_Click" />
+            <TextBox x:Name="AddressBox" IsReadOnly="True" />
+            <TextBox x:Name="KeyBox" IsReadOnly="True" Visibility="Collapsed" />
+
+            <TextBlock x:Name="AboutTitle" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,16,0,0" />
+            <TextBlock x:Name="VersionText" />
+            <Button x:Name="UpdateButton" Click="Update_Click" />
+            <TextBlock x:Name="UpdateStatus" Opacity="0.75" TextWrapping="Wrap" />
+            <HyperlinkButton x:Name="LogsLink" Click="Logs_Click" />
+        </StackPanel>
+    </ScrollViewer>
+</Window>
