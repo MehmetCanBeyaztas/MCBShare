@@ -85,6 +85,9 @@ public sealed class MCBShareCore : IAsyncDisposable
 
     public string? PairingUrl => BaseUrl is { } url ? $"{url}/#pair={Settings.PairingToken}" : null;
 
+    /// <summary>Anahtar adresin # kısmındadır; sunucuya ve kayıtlara gitmez.</summary>
+    public string? ShortcutSetupUrl(string key) => BaseUrl is { } url ? $"{url}/shortcut#key={Uri.EscapeDataString(key)}" : null;
+
     public string? ShareUrl(string code) => BaseUrl is { } url ? $"{url}/d/{code}" : null;
 
     public void RegeneratePairingToken()
@@ -308,6 +311,7 @@ internal static class Endpoints
         });
 
         app.MapGet("/", () => WebAsset("index.html", "text/html; charset=utf-8"));
+        app.MapGet("/shortcut", () => WebAsset("shortcut.html", "text/html; charset=utf-8"));
         app.MapGet("/manifest.webmanifest", () => WebAsset("manifest.webmanifest", "application/manifest+json"));
         app.MapGet("/icon.svg", () => WebAsset("icon.svg", "image/svg+xml"));
 

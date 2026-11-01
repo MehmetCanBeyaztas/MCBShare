@@ -5,6 +5,9 @@ public sealed class Device
     public string Id { get; set; } = "";
     public string Name { get; set; } = "";
     public string KeyHash { get; set; } = "";
+
+    /// <summary>Kısayol yalnızca PC'ye gönderir; sayfası olmadığı için metin alamaz.</summary>
+    public bool IsShortcut { get; set; }
     public DateTimeOffset RegisteredAt { get; set; }
     public DateTimeOffset? LastSeenAt { get; set; }
 }
@@ -36,7 +39,7 @@ public sealed class DeviceRegistry
     }
 
     /// <summary>Yeni cihaz kaydeder. Anahtar yalnızca burada döner, sonra geri alınamaz.</summary>
-    public (Device Device, string Key) Register(string name)
+    public (Device Device, string Key) Register(string name, bool isShortcut = false)
     {
         var key = Secrets.NewKey();
         var cleanName = name.Trim();
@@ -47,6 +50,7 @@ public sealed class DeviceRegistry
             Id = Secrets.NewCode(12),
             Name = cleanName,
             KeyHash = Secrets.Hash(key),
+            IsShortcut = isShortcut,
             RegisteredAt = _time.GetUtcNow(),
         };
         lock (_lock)

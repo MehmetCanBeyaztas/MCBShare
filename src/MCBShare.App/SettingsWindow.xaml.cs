@@ -12,6 +12,7 @@ public sealed partial class SettingsWindow : Window
 {
     private readonly MCBShareCore _core = App.Current.Core;
     private bool _loading = true;
+    private string? _shortcutKey;
 
     public SettingsWindow()
     {
@@ -36,8 +37,6 @@ public sealed partial class SettingsWindow : Window
         ShortcutTitle.Text = Loc.T("Shortcut");
         ShortcutSteps.Text = Loc.T("ShortcutSteps");
         ShortcutCreate.Content = Loc.T("ShortcutCreate");
-        AddressBox.Header = Loc.T("Address");
-        KeyBox.Header = Loc.T("Key");
         LogsLink.Content = Loc.T("Logs");
         AboutTitle.Text = Loc.T("About");
         VersionText.Text = string.Format(Loc.T("Version"), AppUpdater.CurrentVersion);
@@ -55,7 +54,6 @@ public sealed partial class SettingsWindow : Window
         LanguageBox.Items.Add("Türkçe");
         LanguageBox.Items.Add("English");
         LanguageBox.SelectedIndex = s.Language switch { "tr" => 1, "en" => 2, _ => 0 };
-        AddressBox.Text = _core.BaseUrl is { } url ? url + "/upload" : "";
 
         RefreshNetworks();
         RefreshDevices();
@@ -150,16 +148,23 @@ public sealed partial class SettingsWindow : Window
     {
         await _core.TrustCurrentNetworkAsync();
         RefreshNetworks();
-        AddressBox.Text = _core.BaseUrl is { } url ? url + "/upload" : "";
     }
 
     private void RenewPair_Click(object sender, RoutedEventArgs e) => _core.RegeneratePairingToken();
 
-    private void ShortcutCreate_Click(object sender, RoutedEventArgs e)
+    private async void ShortcutCreate_Click(object sender, RoutedEventArgs e)
     {
-        var (_, key) = _core.Devices.Register(Loc.T("ShortcutName"));
-        KeyBox.Text = key;
-        KeyBox.Visibility = Visibility.Visible;
+        if (_core.BaseUrl is null)
+        {
+            ShortcutSteps.Text = Loc.T("ShortcutNeedsServer");
+            return;
+        }
+        // Aynı pencerede yeniden basmak yeni bir cihaz kaydı biriktirmesin.
+        _shortcutKey ??= _core.Devices.Register(Loc.T("ShortcutName"), isShortcut: true).Key;
+        if (_core.ShortcutSetupUrl(_shortcutKey) is not { } url) return;
+        ShortcutSteps.Text = Loc.T("ShortcutSteps");
+        ShortcutQr.Source = await QrImages.CreateAsync(url);
+        ShortcutQrFrame.Visibility = Visibility.Visible;
     }
 
     private async void Update_Click(object sender, RoutedEventArgs e)

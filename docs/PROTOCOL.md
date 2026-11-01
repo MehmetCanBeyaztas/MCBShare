@@ -65,6 +65,10 @@ Başlamış bir indirme kod ölünce kesilmez.
 - `GET /api/clipboard`: PC'nin bu cihaza gönderdiği en son metin, `{ "text": "...", "at": <unix ms> }`. Yoksa `text` boştur.
   Metin yalnızca hedef cihaza döner ve 15 dakika tutulur; PC'den yeni metin gönderilince önceki silinir. Sayfa açıkken bu adresi 3 saniyede bir sorar; PC, hedefin ilk alışını gösterir.
 
+## iOS Kısayolu kurulumu
+
+- `GET /shortcut#key=<anahtar>`: adım adım kurulum sayfası. Anahtar `#` kısmındadır, sunucuya gitmez.
+
 ## Tanılama
 
 `POST /api/clientlog` `{ "message": "..." }`: Telefondaki sayfanın gördüğü aktarım sorununu PC'nin loguna yazar.
