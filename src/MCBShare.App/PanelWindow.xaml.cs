@@ -342,10 +342,12 @@ public sealed partial class PanelWindow : Window
         TextInput.Focus(FocusState.Programmatic);
     }
 
+    private IEnumerable<Device> TextDevices => _core.Devices.Devices.Where(d => !d.IsShortcut);
+
     /// <summary>Birden çok telefon varken metin, kullanıcı seçmeden hiçbirine gitmez.</summary>
     public void RefreshTextTargets()
     {
-        var devices = _core.Devices.Devices.OrderByDescending(d => d.LastSeenAt ?? d.RegisteredAt).ToList();
+        var devices = TextDevices.OrderByDescending(d => d.LastSeenAt ?? d.RegisteredAt).ToList();
         if (devices.All(d => d.Id != _textTargetId)) _textTargetId = null;
         if (devices.Count == 1) _textTargetId = devices[0].Id;
 
@@ -368,7 +370,7 @@ public sealed partial class PanelWindow : Window
         var hasText = TextInput.Text.Length > 0;
         TextQrButton.IsEnabled = hasText;
         TextSendButton.IsEnabled = hasText && _textTargetId is not null && _core.State == ServerState.Running;
-        if (_core.Devices.Devices.Count == 0) TextStatus.Text = Loc.T("NoPhone");
+        if (!TextDevices.Any()) TextStatus.Text = Loc.T("NoPhone");
     }
 
     private void TextTarget_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -400,7 +402,7 @@ public sealed partial class PanelWindow : Window
 
     private void TextSend_Click(object sender, RoutedEventArgs e)
     {
-        if (_core.Devices.Devices.FirstOrDefault(d => d.Id == _textTargetId) is not { } target) return;
+        if (TextDevices.FirstOrDefault(d => d.Id == _textTargetId) is not { } target) return;
         _lastSentText = TextInput.Text;
         _core.Clipboard.SendToPhone(target.Id, _lastSentText);
         TextStatus.Text = string.Format(Loc.T("TextWaiting"), target.Name);

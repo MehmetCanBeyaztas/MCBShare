@@ -37,8 +37,9 @@
             <TextBlock x:Name="ShortcutTitle" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,16,0,0" />
             <TextBlock x:Name="ShortcutSteps" TextWrapping="Wrap" IsTextSelectionEnabled="True" />
             <Button x:Name="ShortcutCreate" Click="ShortcutCreate_Click" />
-            <TextBox x:Name="AddressBox" IsReadOnly="True" />
-            <TextBox x:Name="KeyBox" IsReadOnly="True" Visibility="Collapsed" />
+            <Border x:Name="ShortcutQrFrame" Background="White" CornerRadius="8" Padding="10" HorizontalAlignment="Left" Visibility="Collapsed">
+                <Image x:Name="ShortcutQr" Width="220" Height="220" />
+            </Border>
 
             <TextBlock x:Name="AboutTitle" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,16,0,0" />
             <TextBlock x:Name="VersionText" />

@@ -433,13 +433,12 @@ public static class Loc
         ["NoDevices"] = ("Kayıtlı cihaz yok", "No devices yet"),
         ["NewPairCode"] = ("Eşleşme kodunu yenile", "Renew pairing code"),
         ["Shortcut"] = ("iOS Kısayolu kurulumu", "iOS Shortcut setup"),
-        ["ShortcutCreate"] = ("Kısayol için anahtar oluştur", "Create key for Shortcut"),
+        ["ShortcutCreate"] = ("Kurulumu iPhone'da aç", "Open setup on iPhone"),
+        ["ShortcutNeedsServer"] = ("Önce bu ağa güvenin; sunucu kapalıyken kurulum açılamaz.", "Trust this network first; setup can't open while the server is off."),
         ["ShortcutName"] = ("Kısayol cihazı", "Shortcut device"),
         ["ShortcutSteps"] = (
-            "1. Kısayollar'da yeni kısayol oluşturun; ayrıntılardan \"Paylaşım Sayfasında Göster\"i açın, Fotoğraf ve Dosya seçin.\n2. \"Her Öğe için Tekrarla\" ekleyin.\n3. İçine \"URL'nin İçeriğini Al\" ekleyin. URL: aşağıdaki adres + ?name= ve Tekrar Öğesi'nin adı. Yöntem: POST, İstek Gövdesi: Dosya → Tekrar Öğesi.\n4. Üstbilgi ekleyin: X-MCB-Key = aşağıdaki anahtar.\n5. Döngüden sonra \"Bildirim Göster\": PC'ye gönderildi ✓\n6. İlk çalıştırmada ağ izni için \"Her Zaman İzin Ver\"i seçin.",
-            "1. Create a new shortcut; in details enable \"Show in Share Sheet\" and choose Photos and Files.\n2. Add \"Repeat with Each\".\n3. Inside it add \"Get Contents of URL\". URL: the address below + ?name= and the Repeat Item's name. Method: POST, Request Body: File → Repeat Item.\n4. Add a header: X-MCB-Key = the key below.\n5. After the loop add \"Show Notification\": Sent to PC ✓\n6. On first run choose \"Always Allow\" for network access."),
-        ["Address"] = ("Adres", "Address"),
-        ["Key"] = ("Anahtar (yalnızca şimdi görünür)", "Key (shown only now)"),
+            "Kısayol, iPhone'un Paylaş menüsünden PC'ye dosya gönderir. Düğmeye basıp çıkan QR'ı iPhone kamerasıyla okutun: adımlar ve kopyalama düğmeleri telefonda açılır. QR gizli anahtar içerir, kimseyle paylaşmayın.",
+            "The Shortcut sends files to your PC from the iPhone Share menu. Press the button and scan the QR with the iPhone camera: the steps and copy buttons open on the phone. The QR holds a secret key, don't share it."),
         ["Logs"] = ("Log klasörünü aç", "Open log folder"),
     };
 

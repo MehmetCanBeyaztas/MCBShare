@@ -467,6 +467,18 @@ public sealed class ServerTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task Shortcut_setup_page_is_served_and_key_stays_out_of_the_request()
+    {
+        using var anon = new HttpClient { BaseAddress = _http.BaseAddress };
+        var page = await anon.GetStringAsync("/shortcut");
+        Assert.Contains("X-MCB-Key", page);
+
+        var (device, key) = _core.Devices.Register("Kisayol", isShortcut: true);
+        Assert.True(device.IsShortcut);
+        Assert.EndsWith($"/shortcut#key={Uri.EscapeDataString(key)}", _core.ShortcutSetupUrl(key));
+    }
+
+    [Fact]
     public async Task Sent_text_reaches_only_the_target_device()
     {
         var delivered = new List<string>();
