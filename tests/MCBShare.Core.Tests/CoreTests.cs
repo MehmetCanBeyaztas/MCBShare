@@ -475,7 +475,9 @@ public sealed class ServerTests : IAsyncLifetime
 
         var (device, key) = _core.Devices.Register("Kisayol", isShortcut: true);
         Assert.True(device.IsShortcut);
-        Assert.EndsWith($"/shortcut#key={Uri.EscapeDataString(key)}", _core.ShortcutSetupUrl(key));
+        // Yerel ağı olmayan makinede (ör. CI) BaseUrl yoktur.
+        var expected = _core.BaseUrl is { } url ? $"{url}/shortcut#key={Uri.EscapeDataString(key)}" : null;
+        Assert.Equal(expected, _core.ShortcutSetupUrl(key));
     }
 
     [Fact]
