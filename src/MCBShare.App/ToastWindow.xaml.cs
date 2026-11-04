@@ -4,6 +4,7 @@ using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Windows.Graphics;
 using Windows.Storage;
@@ -15,7 +16,7 @@ namespace MCBShare.App;
 /// <summary>Orta alttaki aktarım kutusu. Odak çalmaz; panele ve kayıt listesine bağlı değildir.</summary>
 public sealed partial class ToastWindow : Window
 {
-    private const int LogicalWidth = 360, LogicalHeight = 72;
+    private const int LogicalWidth = 360, LogicalHeight = 72, ScreenMargin = 12;
     private const double AnimationMs = 180;
     private static readonly TimeSpan VisibleFor = TimeSpan.FromSeconds(4);
 
@@ -181,14 +182,17 @@ public sealed partial class ToastWindow : Window
     private void Apply(int height) =>
         Native.SetWindowPos(_handle, Native.HWND_TOPMOST, _target.X, _target.Y + _target.Height - height, _target.Width, height, Native.SWP_NOACTIVATE);
 
+    /// <summary>Windows bildirimleri gibi her zaman ana ekranda, görev çubuğundan biraz yukarıda açılır.</summary>
     private RectInt32 ComputeTarget()
     {
-        Native.GetCursorPos(out var cursor);
-        var area = DisplayArea.GetFromPoint(new PointInt32(cursor.X, cursor.Y), DisplayAreaFallback.Primary).WorkArea;
-        var scale = Native.GetDpiForWindow(_handle) / 96.0;
+        var area = DisplayArea.Primary.WorkArea;
+        // Pencere son kez başka DPI'lı bir ekranda kalmış olabilir; ölçek hedef ekrandan okunur.
+        var monitor = Native.MonitorFromPoint(new Native.POINT { X = area.X, Y = area.Y }, 1);
+        var scale = Native.GetDpiForMonitor(monitor, 0, out var dpi, out _) == 0 ? dpi / 96.0 : Native.GetDpiForWindow(_handle) / 96.0;
         var width = (int)(LogicalWidth * scale);
         var height = (int)(LogicalHeight * scale);
-        return new RectInt32(area.X + (area.Width - width) / 2, area.Y + area.Height - height, width, height);
+        var margin = (int)(ScreenMargin * scale);
+        return new RectInt32(area.X + (area.Width - width) / 2, area.Y + area.Height - height - margin, width, height);
     }
 
     private async Task LoadPreviewAsync(string path)
@@ -221,7 +225,9 @@ public sealed partial class ToastWindow : Window
 
     private void Root_Tapped(object sender, TappedRoutedEventArgs e)
     {
-        if (e.OriginalSource is FrameworkElement { Parent: Button } or Button) return;
+        // Düğme yazısı bir ContentPresenter içindedir; Parent'a bakmak yetmez, görsel ağaçta yukarı çıkılır.
+        for (var node = e.OriginalSource as DependencyObject; node is not null && node != Root; node = VisualTreeHelper.GetParent(node))
+            if (node is Button) return;
         if (_completedInRun == 1 && _lastPath is not null)
         {
             Process.Start(new ProcessStartInfo(_lastPath) { UseShellExecute = true });
@@ -240,5 +246,9 @@ public sealed partial class ToastWindow : Window
         await ClipboardFiles.CopyAsync(_lastPath);
         Subtitle.Text = Loc.T("Copied");
         CopyButton.Visibility = Visibility.Collapsed;
+        // Fare hâlâ kutunun üzerinde olsa da "Kopyalandı" bir an görünüp kutu kendiliğinden kapanır.
+        await Task.Delay(800);
+        _hovering = false;
+        Dismiss();
     }
 }

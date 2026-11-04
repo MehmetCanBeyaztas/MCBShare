@@ -471,7 +471,7 @@ public sealed class ServerTests : IAsyncLifetime
     {
         using var anon = new HttpClient { BaseAddress = _http.BaseAddress };
         var page = await anon.GetStringAsync("/shortcut");
-        Assert.Contains("X-MCB-Key", page);
+        Assert.Contains("https://www.icloud.com/shortcuts/", page);
 
         var (device, key) = _core.Devices.Register("Kisayol", isShortcut: true);
         Assert.True(device.IsShortcut);
