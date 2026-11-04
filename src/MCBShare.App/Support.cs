@@ -44,6 +44,8 @@ internal static partial class Native
 
     [LibraryImport("user32.dll")] [return: MarshalAs(UnmanagedType.Bool)] public static partial bool GetCursorPos(out POINT point);
     [LibraryImport("user32.dll")] public static partial uint GetDpiForWindow(nint hwnd);
+    [LibraryImport("user32.dll")] public static partial nint MonitorFromPoint(POINT point, uint flags);
+    [LibraryImport("shcore.dll")] public static partial int GetDpiForMonitor(nint monitor, int type, out uint dpiX, out uint dpiY);
     [LibraryImport("user32.dll")] private static partial short GetAsyncKeyState(int key);
 
     public static bool IsMouseButtonDown()

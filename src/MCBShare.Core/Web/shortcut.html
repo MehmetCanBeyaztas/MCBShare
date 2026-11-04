@@ -18,7 +18,7 @@ h1{font-size:28px;margin:0 0 4px}
 .step p{margin:6px 0}
 b{font-weight:600}
 input{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text);font:15px ui-monospace,Menlo,monospace;margin-top:6px}
-button{display:block;width:100%;min-height:46px;margin-top:8px;padding:11px;border:0;border-radius:11px;background:var(--accent);color:#fff;font:600 16px -apple-system,system-ui,sans-serif;cursor:pointer}
+button,a.btn{display:block;box-sizing:border-box;text-align:center;text-decoration:none;width:100%;min-height:46px;margin-top:8px;padding:11px;border:0;border-radius:11px;background:var(--accent);color:#fff;font:600 16px -apple-system,system-ui,sans-serif;cursor:pointer}
 .bad{color:var(--bad)}
 [hidden]{display:none!important}
 </style>
@@ -27,42 +27,36 @@ button{display:block;width:100%;min-height:46px;margin-top:8px;padding:11px;bord
 <main id="page"></main>
 <script>
 const tr = (navigator.language || '').toLowerCase().startsWith('tr');
+// Paylaşılan kısayolun iCloud bağlantısı. Ekleyen kişiye adres ve anahtar sorulur; içinde kimsenin bilgisi yoktur.
+const SHORTCUT_LINK = 'https://www.icloud.com/shortcuts/2e15d180d89148a88c439cbc70dd55e5';
+
 const T = tr ? {
   title: 'iOS Kısayolu kurulumu',
-  sub: 'Bu sayfayı açık tutun. Her adımda Kısayollar uygulamasına geçip buraya dönün.',
+  sub: 'Kısayol, iPhone\'un Paylaş menüsünden bu PC\'ye dosya gönderir. Bu sayfayı açık tutun; adımlar arasında Kısayollar ile buraya gidip geleceksiniz.',
   noKey: 'Bu sayfada anahtar yok. PC\'de Ayarlar > iOS Kısayolu bölümündeki QR\'ı okutun.',
-  copy: 'Kopyala', copied: 'Kopyalandı ✓', manual: 'Seçildi, Kopyala\'ya dokunun',
+  copy: 'Kopyala', copied: 'Kopyalandı ✓', manual: 'Seçildi, Kopyala\'ya dokunun', add: 'Kısayolu ekle',
   steps: [
-    ['Kısayolu oluşturun', ['<b>Kısayollar</b> uygulamasını açın, sağ üstteki <b>+</b> simgesine dokunun. Adını <b>MCBShare</b> yapın.']],
-    ['Paylaş menüsüne ekleyin', ['Üstteki kısayol adına, sonra <b>Ayrıntılar</b> (ⓘ) simgesine dokunun. <b>Paylaşım Sayfasında Göster</b>i açıp <b>Bitti</b> deyin.', 'Kısayolun başında <b>Kısayol Girdisi</b> kutusu çıkar; içinde yalnızca <b>Görüntüler</b> ve <b>Dosyalar</b> seçili kalsın.']],
-    ['Döngü ekleyin', ['Alttaki arama kutusuna <b>Tekrarla</b> yazın, <b>Her Biri için Tekrarla</b> eylemini ekleyin. Listelenen öğe <b>Kısayol Girdisi</b> olmalı.']],
-    ['Gönderme eylemini ekleyin', ['Aramaya <b>URL\'nin İçeriğini Al</b> yazın ve eklenen eylemi <b>Tekrarla</b> ile <b>Tekrarı Bitir</b> satırlarının arasına sürükleyin.', 'URL alanına şu adresi yapıştırın:'], 'url'],
-    ['Dosya adını ekleyin', ['İmleç adresin sonundayken klavyenin üstündeki <b>Tekrar Öğesi</b>ne dokunun. Eklenen <b>Tekrar Öğesi</b> kutusuna dokunup <b>Ad</b>ı seçin.', 'Hemen arkasına nokta (<b>.</b>) yazın, yine <b>Tekrar Öğesi</b> ekleyip bu kez <b>Dosya Uzantısı</b>nı seçin. Sonuç: <b>…name=Ad.Dosya Uzantısı</b>']],
-    ['Yöntem ve anahtar', ['Eylemdeki <b>Daha Fazla Göster</b>e dokunun. <b>Yöntem</b>i <b>POST</b> yapın.', '<b>Üstbilgiler</b>de <b>Yeni Üstbilgi Ekle</b>ye dokunun. Anahtar alanına:'], 'header', 'Metin alanına:', 'key'],
-    ['Dosyayı gövdeye koyun', ['<b>İstek Gövdesi</b>ni <b>Dosya</b> yapın. Dosya alanına dokunup <b>Tekrar Öğesi</b>ni seçin; alt seçenek açılırsa <b>Ad</b> değil, öğenin kendisi kalmalı.']],
-    ['Bildirim ekleyin (isteğe bağlı)', ['En sona, <b>Tekrarı Bitir</b>in altına <b>Bildirim Göster</b> ekleyin. Metni <b>PC\'ye gönderildi ✓</b> yapın.']],
-    ['Deneyin', ['Fotoğraflar\'dan bir fotoğraf açın, <b>Paylaş</b>a dokunun, listeden <b>MCBShare</b>\'i seçin. Ağ izni sorulursa <b>Her Zaman İzin Ver</b>i seçin. Dosya PC\'ye gelmeli.', 'PC ile telefon aynı Wi-Fi\'de olmalı. PC\'nin adresi değişirse 4. adımdaki adresi güncelleyin.']],
+    ['Adresi kopyalayın', ['Önce bu PC\'nin adresini kopyalayın:'], 'host'],
+    ['Kısayolu ekleyin', ['Aşağıdaki düğmeye dokunun; Kısayollar açılır. <b>Kestirmeyi Ayarla</b> ekranındaki ilk soru <b>Pc adresi nedir?</b> olur: kutuya basılı tutup <b>Yapıştır</b>\'ı seçin.'], 'link'],
+    ['Anahtarı kopyalayın', ['Safari\'ye, bu sayfaya dönün ve anahtarı kopyalayın:'], 'key', 'Kısayollar\'a dönüp <b>Anahtar nedir?</b> sorusuna yapıştırın, sonra kısayolu ekleyin.'],
+    ['Deneyin', ['Fotoğraflar\'da bir fotoğraf açın, <b>Paylaş</b>\'a dokunun ve listeden <b>MCBShare</b>\'i seçin. Ağ izni sorulursa <b>Her Zaman İzin Ver</b>\'i seçin. Fotoğraf PC\'ye gelmeli.', 'PC ile telefon aynı Wi-Fi\'de olmalı. PC\'nin adresi değişirse kısayolu düzenleyip en üstteki ilk <b>Metin</b> kutusuna yeni adresi yazın.']],
   ]
 } : {
   title: 'iOS Shortcut setup',
-  sub: 'Keep this page open. Switch to the Shortcuts app for each step, then come back.',
+  sub: 'The Shortcut sends files to this PC from the iPhone Share menu. Keep this page open; you\'ll switch between Shortcuts and this page.',
   noKey: 'This page has no key. Scan the QR code in Settings > iOS Shortcut on your PC.',
-  copy: 'Copy', copied: 'Copied ✓', manual: 'Selected, tap Copy',
+  copy: 'Copy', copied: 'Copied ✓', manual: 'Selected, tap Copy', add: 'Add the Shortcut',
   steps: [
-    ['Create the shortcut', ['Open the <b>Shortcuts</b> app and tap <b>+</b> at the top right. Name it <b>MCBShare</b>.']],
-    ['Add it to the Share menu', ['Tap the shortcut name at the top, then the <b>Details</b> (ⓘ) icon. Turn on <b>Show in Share Sheet</b> and tap <b>Done</b>.', 'A <b>Shortcut Input</b> box appears at the top; keep only <b>Images</b> and <b>Files</b> selected.']],
-    ['Add a loop', ['Search for <b>Repeat</b> at the bottom and add <b>Repeat with Each</b>. The item should be <b>Shortcut Input</b>.']],
-    ['Add the send action', ['Search for <b>Get Contents of URL</b> and drag it between <b>Repeat</b> and <b>End Repeat</b>.', 'Paste this address into the URL field:'], 'url'],
-    ['Add the file name', ['With the cursor at the end of the address, tap <b>Repeat Item</b> above the keyboard. Tap the new <b>Repeat Item</b> box and choose <b>Name</b>.', 'Type a dot (<b>.</b>) right after it, add <b>Repeat Item</b> again and choose <b>File Extension</b>. Result: <b>…name=Name.File Extension</b>']],
-    ['Method and key', ['Tap <b>Show More</b> in the action. Set <b>Method</b> to <b>POST</b>.', 'Under <b>Headers</b> tap <b>Add new header</b>. In the Key field:'], 'header', 'In the Text field:', 'key'],
-    ['Put the file in the body', ['Set <b>Request Body</b> to <b>File</b>. Tap the File field and choose <b>Repeat Item</b>; it must be the item itself, not its <b>Name</b>.']],
-    ['Add a notification (optional)', ['At the very end, below <b>End Repeat</b>, add <b>Show Notification</b> with the text <b>Sent to PC ✓</b>.']],
-    ['Try it', ['Open a photo in Photos, tap <b>Share</b> and pick <b>MCBShare</b>. If asked for network access, choose <b>Always Allow</b>. The file should reach your PC.', 'The PC and phone must be on the same Wi-Fi. If the PC\'s address changes, update the address from step 4.']],
+    ['Copy the address', ['First copy this PC\'s address:'], 'host'],
+    ['Add the Shortcut', ['Tap the button below; Shortcuts opens. The first question is <b>Pc adresi nedir?</b> (the PC\'s address): touch and hold the box and choose <b>Paste</b>.'], 'link'],
+    ['Copy the key', ['Go back to this page in Safari and copy the key:'], 'key', 'Return to Shortcuts, paste it into <b>Anahtar nedir?</b> (the key), then add the Shortcut.'],
+    ['Try it', ['Open a photo in Photos, tap <b>Share</b> and pick <b>MCBShare</b>. If asked for network access, choose <b>Always Allow</b>. The photo should reach your PC.', 'The PC and phone must be on the same Wi-Fi. If the PC\'s address changes, edit the Shortcut and type the new address into the first <b>Text</b> box at the top.']],
   ]
 };
 
 const key = new URLSearchParams(location.hash.slice(1)).get('key');
-const values = { url: location.origin + '/upload?name=', header: 'X-MCB-Key', key };
+// Kısayol "http://" ekler; kullanıcıya yalnızca adres:port kalır.
+const values = { host: location.host, key };
 const page = document.getElementById('page');
 document.documentElement.lang = tr ? 'tr' : 'en';
 
@@ -106,8 +100,13 @@ if (!key) {
     add(card, 'h2').textContent = `${i + 1}. ${title}`;
     lines.forEach(line => add(card, 'p', line));
     rest.forEach(item => {
-      if (item in values) copyField(card, values[item]);
-      else add(card, 'p').textContent = item;
+      if (item === 'link') {
+        const a = add(card, 'a', '', 'btn');
+        a.href = SHORTCUT_LINK;
+        a.textContent = T.add;
+      }
+      else if (item in values) copyField(card, values[item]);
+      else add(card, 'p', item);
     });
   });
 }
