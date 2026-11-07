@@ -11,6 +11,7 @@
 [![CI](https://github.com/MehmetCanBeyaztas/MCBShare/actions/workflows/ci.yml/badge.svg)](https://github.com/MehmetCanBeyaztas/MCBShare/actions/workflows/ci.yml)
 ![Windows 11](https://img.shields.io/badge/Windows-11-0078D4?logo=windows11&logoColor=white)
 ![.NET 10](https://img.shields.io/badge/.NET-10-512BD4?logo=dotnet&logoColor=white)
+[![Lisans: MIT](https://img.shields.io/badge/lisans-MIT-green)](LICENSE)
 
 [**⬇ MCBShare'i indir**](https://github.com/MehmetCanBeyaztas/MCBShare/releases/latest/download/MCBShareApp-win-Setup.exe) · [Tüm sürümler](https://github.com/MehmetCanBeyaztas/MCBShare/releases) · [English](README.en.md)
 
@@ -166,3 +167,7 @@ Kurulu uygulamalar yeni sürümü açılıştan 1 dakika sonra ve sonra 6 saatte
 - Microsoft Store (MSIX) sürümü
 - Android için HTTP Shortcuts ayar dosyası
 - PC'yi IP adresi yerine adıyla bulmak için mDNS
+
+## Lisans
+
+[MIT](LICENSE). Kodu serbestçe kullanabilir, değiştirebilir ve dağıtabilirsiniz; telif ve lisans metnini korumanız yeterli.

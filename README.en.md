@@ -11,6 +11,7 @@
 [![CI](https://github.com/MehmetCanBeyaztas/MCBShare/actions/workflows/ci.yml/badge.svg)](https://github.com/MehmetCanBeyaztas/MCBShare/actions/workflows/ci.yml)
 ![Windows 11](https://img.shields.io/badge/Windows-11-0078D4?logo=windows11&logoColor=white)
 ![.NET 10](https://img.shields.io/badge/.NET-10-512BD4?logo=dotnet&logoColor=white)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 [**⬇ Download MCBShare**](https://github.com/MehmetCanBeyaztas/MCBShare/releases/latest/download/MCBShareApp-win-Setup.exe) · [All releases](https://github.com/MehmetCanBeyaztas/MCBShare/releases) · [Türkçe](README.md)
 
@@ -166,3 +167,7 @@ Installed copies check for a new version 1 minute after starting and every 6 hou
 - Microsoft Store (MSIX) version
 - HTTP Shortcuts configuration file for Android
 - mDNS, to find the PC by name instead of IP address
+
+## License
+
+[MIT](LICENSE). You may use, modify and distribute the code freely, as long as you keep the copyright and license notice.
