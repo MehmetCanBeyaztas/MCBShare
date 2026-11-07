@@ -1,10 +1,32 @@
+<div align="center">
+
+<img src="src/MCBShare.Core/Web/icon.svg" width="96" alt="MCBShare simgesi">
+
 # MCBShare
 
 **Telefon ile Windows PC arasında, aynı Wi-Fi üzerinden, kablosuz ve bulutsuz dosya ve metin aktarımı.**
 
+[![Son sürüm](https://img.shields.io/github/v/release/MehmetCanBeyaztas/MCBShare?label=s%C3%BCr%C3%BCm)](https://github.com/MehmetCanBeyaztas/MCBShare/releases/latest)
+[![İndirme](https://img.shields.io/github/downloads/MehmetCanBeyaztas/MCBShare/total?label=indirme)](https://github.com/MehmetCanBeyaztas/MCBShare/releases)
+[![CI](https://github.com/MehmetCanBeyaztas/MCBShare/actions/workflows/ci.yml/badge.svg)](https://github.com/MehmetCanBeyaztas/MCBShare/actions/workflows/ci.yml)
+![Windows 11](https://img.shields.io/badge/Windows-11-0078D4?logo=windows11&logoColor=white)
+![.NET 10](https://img.shields.io/badge/.NET-10-512BD4?logo=dotnet&logoColor=white)
+
+[**⬇ MCBShare'i indir**](https://github.com/MehmetCanBeyaztas/MCBShare/releases/latest/download/MCBShareApp-win-Setup.exe) · [Tüm sürümler](https://github.com/MehmetCanBeyaztas/MCBShare/releases) · [English](README.en.md)
+
+</div>
+
 Telefona uygulama kurmanız gerekmez. PC'deki MCBShare, yerel ağda küçük bir sunucu açar; telefon tarayıcıdan veya iOS Kısayolu'ndan bağlanır. Dosyalar internete çıkmaz, bir hesaba ya da buluta yüklenmez, doğrudan PC'nize yazılır.
 
-[**⬇ MCBShare'i indir (Windows 11)**](https://github.com/MehmetCanBeyaztas/MCBShare/releases/latest/download/MCBShareApp-win-Setup.exe) · [Tüm sürümler](https://github.com/MehmetCanBeyaztas/MCBShare/releases)
+<table>
+  <tr>
+    <td align="center" width="33%"><img src="docs/images/phone-tr.jpg" alt="Telefondaki MCBShare sayfası, PC'ye gönderilmiş dosyalar"><br><sub><b>Telefon:</b> dosya seç, gönder</sub></td>
+    <td align="center" width="33%"><img src="docs/images/panel-tr.png" alt="Tepsideki MCBShare paneli, gelen dosyalar listesi"><br><sub><b>PC:</b> gelen dosyalar, tek tıkla aç veya kopyala</sub></td>
+    <td align="center" width="33%"><img src="docs/images/share-tr.png" alt="PC'den telefona paylaşım QR kodu"><br><sub><b>PC'den telefona:</b> sürükle, QR'ı okut</sub></td>
+  </tr>
+</table>
+
+<p align="center"><img src="docs/images/toast-tr.png" width="360" alt="Ekranın altında açılan aktarım kutusu: önizleme, Alındı, Kopyala"><br><sub>Dosya gelince ekranın altında açılan aktarım kutusu</sub></p>
 
 ---
 
